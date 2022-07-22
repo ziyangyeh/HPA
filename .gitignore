@@ -1,0 +1,11 @@
+.vscode
+__pycache__/
+
+checkpoint
+train_masks
+wandb
+
+hubmap-organ-segmentation
+
+*.ckpt
+*.zip

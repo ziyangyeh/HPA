@@ -1,0 +1,37 @@
+seed: 42
+
+train:
+  epochs: 200
+  precision: 16
+  checkpoint_dir: "tmp/checkpoint"
+  gpus: 1
+  optimizer:
+    NAME: "adam"
+    learning_rate: 0.00001
+    weight_decay: 0.0
+    momentum: 0.9
+  scheduler:
+    NAME: "cosine"
+    min_lr: 0.0000001
+    warmup_start_lr: 0
+    warmup_epochs: 0
+    eta_min: 0
+
+model:
+  architecture: 'unetplusplus-with-aspp-fpn' #'FPN' 
+  backbone: 'efficientnet-b7'
+  atrous_rates: [6, 12, 18]
+  segmentation_channels: 32
+
+data:
+  batch_size: 8
+  accumulate_grad_batches: 2
+  num_workers: 4
+  n_split: 4
+  val_fold: 0
+  spatial_size: 512
+
+logger:
+  wandb:
+    use: True
+    project: 'hubmap-organ-segmentation'
