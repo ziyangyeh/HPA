@@ -9,3 +9,4 @@ hubmap-organ-segmentation
 
 *.ckpt
 *.zip
+*.csv
