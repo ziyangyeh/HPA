@@ -244,8 +244,8 @@ class LitModule(pl.LightningModule):
 
         # Setup the scheduler
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
-                                                    step_size=50,
-                                                    gamma=0.5)
+                                                    step_size=self.cfg_scheduler.step_size,
+                                                    gamma=self.cfg_scheduler.gamma)
 
         return [optimizer], [{"scheduler": scheduler, "interval": "epoch"}]
 

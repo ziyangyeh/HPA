@@ -7,15 +7,13 @@ train:
   gpus: 1
   optimizer:
     NAME: "adam"
-    learning_rate: 0.00001
+    learning_rate: 0.0005
     weight_decay: 0.0
     momentum: 0.9
   scheduler:
-    NAME: "cosine"
-    min_lr: 0.0000001
-    warmup_start_lr: 0
-    warmup_epochs: 0
-    eta_min: 0
+    NAME: "stepLR"
+    step_size: 50
+    gamma: 0.5
 
 model:
   architecture: 'unetplusplus-with-aspp-fpn' #'FPN' 
