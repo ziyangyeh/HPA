@@ -32,8 +32,6 @@ class LitDataModule(pl.LightningDataModule):
         num_workers: int,
     ):
         super().__init__()
-        
-        self.batch_size = batch_size
 
         self.save_hyperparameters()
 
@@ -120,7 +118,7 @@ class LitDataModule(pl.LightningDataModule):
     def _dataloader(self, dataset: CSVDataset, train: bool = False, val: bool = False) -> DataLoader:
         return DataLoader(
             dataset,
-            batch_size=self.batch_size,
+            batch_size=self.hparams.batch_size,
             shuffle=True if train and val else False,
             num_workers=self.hparams.num_workers,
             pin_memory=True,

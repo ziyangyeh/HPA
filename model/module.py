@@ -212,6 +212,7 @@ class LitModule(pl.LightningModule):
     ):
         super().__init__()
 
+        self.batch_size = cfg.data.batch_size
         self.cfg = cfg
         self.cfg_optimizer = self.cfg.train.optimizer
         self.cfg_scheduler = self.cfg.train.scheduler
@@ -266,9 +267,9 @@ class LitModule(pl.LightningModule):
         dice_soft = self.dice_soft(outputs, masks)
         dice_th = self.dice_th(outputs, masks)
 
-        self.log(f"{step}_loss", loss)
-        self.log(f"{step}_dice_soft", dice_soft)
-        self.log(f"{step}_dice_th", dice_th)
+        self.log(f"{step}_loss", loss, batch_size=self.batch_size)
+        self.log(f"{step}_dice_soft", dice_soft, batch_size=self.batch_size)
+        self.log(f"{step}_dice_th", dice_th, batch_size=self.batch_size)
 
         return loss
 

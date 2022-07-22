@@ -1,7 +1,7 @@
 seed: 42
 
 train:
-  epochs: 200
+  epochs: 100
   precision: 16
   checkpoint_dir: "tmp/checkpoint"
   gpus: 1
