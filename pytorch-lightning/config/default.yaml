@@ -17,12 +17,12 @@ train:
 
 model:
   architecture: 'unetplusplus-with-aspp-fpn' #'FPN' 
-  backbone: 'efficientnet-b7'
+  backbone: 'efficientnet-b4'
   atrous_rates: [6, 12, 18]
   segmentation_channels: 32
 
 data:
-  batch_size: 8
+  batch_size: 6
   accumulate_grad_batches: 2
   num_workers: 4
   n_split: 4

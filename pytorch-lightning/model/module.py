@@ -256,9 +256,15 @@ class LitModule(pl.LightningModule):
     def training_step(self, batch: Dict, batch_idx: int) -> torch.Tensor:
         return self._step(batch, "train")
 
-    def validation_step(self, batch: Dict, batch_idx: int) -> None:
+    def validation_step(self, batch: Dict, batch_idx: int) -> torch.Tensor:
         return self._step(batch, "val")
-        
+
+    def test_step(self, batch: Dict, batch_idx: int) -> torch.Tensor:
+        return self._step(batch, "test")
+
+    def predict_step(self, batch: Dict, batch_idx: int) -> torch.Tensor:
+        return self._step(batch, "test")
+
     def _step(self, batch: Dict[str, torch.Tensor], step: str) -> torch.Tensor:
         images, masks = batch["image"], batch["mask"]
         outputs = self(images)

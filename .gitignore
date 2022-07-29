@@ -5,8 +5,12 @@ checkpoint
 train_masks
 wandb
 
+input
 hubmap-organ-segmentation
+mmsegmentation256x256
+mmsegmentation512x512
 
+*.pth
 *.ckpt
 *.zip
 *.csv
