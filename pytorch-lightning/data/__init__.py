@@ -1,1 +1,1 @@
-from .data import LitDataModule
+from .data import LitDataModule, HuBMAPDataset

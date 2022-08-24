@@ -14,3 +14,6 @@ mmsegmentation512x512
 *.ckpt
 *.zip
 *.csv
+
+demo.py
+demo.ipynb

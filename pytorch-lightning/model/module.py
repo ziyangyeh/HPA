@@ -1,15 +1,14 @@
 from typing import Any, Callable, Dict, List, Union, Optional, Tuple
 
-import monai
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import pytorch_lightning as pl
 
 import segmentation_models_pytorch as smp
-from segmentation_models_pytorch.deeplabv3.decoder import ASPP
-from segmentation_models_pytorch.fpn.decoder import FPNDecoder
-from segmentation_models_pytorch.unetplusplus.decoder import CenterBlock
+from segmentation_models_pytorch.decoders.deeplabv3.decoder import ASPP
+from segmentation_models_pytorch.decoders.fpn.decoder import FPNDecoder
+from segmentation_models_pytorch.decoders.unetplusplus.decoder import CenterBlock
 
 def build_from_config(cfg):
     if cfg.architecture=='unetplusplus-with-aspp-fpn':
@@ -204,7 +203,7 @@ class UnetPlusPlus_with_ASPP_FPN(SegmentationModel):
 
 from timm.optim import create_optimizer_v2
 from pl_bolts.optimizers import lr_scheduler
-from losses_metrics import SymmetricLovaszLoss, Dice_soft, Dice_threshold
+from losses_metrics import SymmetricLovaszLoss, Dice_soft, Dice_threshold, Dice_soft_func, Dice_threshold_func
 class LitModule(pl.LightningModule):
     def __init__(
         self,
@@ -226,17 +225,13 @@ class LitModule(pl.LightningModule):
 
         self.loss_fn = self._init_loss_fn()
 
-        self.dice_soft, self.dice_th = self._init_metric_fn()
+        # self.dice_soft, self.dice_th = self._init_metric_fn()
 
-    # def _init_loss_fn(self):
-    #     # TODO: try other losses
-    #     return monai.losses.DiceLoss(sigmoid=True)
-    
     def _init_loss_fn(self):
         return SymmetricLovaszLoss("binary")
 
-    def _init_metric_fn(self):
-        return Dice_soft(), Dice_threshold()
+    # def _init_metric_fn(self):
+    #     return Dice_soft(), Dice_threshold()
 
     def configure_optimizers(self):
         # Setup the optimizer
@@ -266,16 +261,18 @@ class LitModule(pl.LightningModule):
         return self._step(batch, "test")
 
     def _step(self, batch: Dict[str, torch.Tensor], step: str) -> torch.Tensor:
-        images, masks = batch["image"], batch["mask"]
+        images, masks = batch["image"].float(), batch["mask"].int()
         outputs = self(images)
 
         loss = self.loss_fn(outputs, masks)
-        dice_soft = self.dice_soft(outputs, masks)
-        dice_th = self.dice_th(outputs, masks)
+        # dice_soft = self.dice_soft(outputs, masks)
+        # dice_th = self.dice_th(outputs, masks)
+        dice_soft = Dice_soft_func(outputs, masks)
+        dice_th = Dice_threshold_func(outputs, masks)
 
-        self.log(f"{step}_loss", loss, batch_size=self.batch_size)
-        self.log(f"{step}_dice_soft", dice_soft, batch_size=self.batch_size)
-        self.log(f"{step}_dice_th", dice_th, batch_size=self.batch_size)
+        self.log(f"{step}_loss", loss, sync_dist=True)
+        self.log(f"{step}_dice_soft", dice_soft, sync_dist=True)
+        self.log(f"{step}_dice_th", dice_th, sync_dist=True)
 
         return loss
 
