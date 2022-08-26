@@ -12,7 +12,7 @@ from segmentation_models_pytorch.decoders.unetplusplus.decoder import CenterBloc
 
 def build_from_config(cfg):
     if cfg.architecture=='unetplusplus-with-aspp-fpn':
-        return UnetPlusPlus_with_ASPP_FPN(cfg.backbone, segmentation_channels= cfg.segmentation_channels, atrous_rates=tuple(cfg.atrous_rates))
+        return UnetPlusPlus_with_ASPP_FPN(cfg.backbone, segmentation_channels=cfg.segmentation_channels, atrous_rates=tuple(cfg.atrous_rates), classes=cfg.classes)
     else:
         return getattr(smp, cfg.architecture)(cfg.backbone)
 
@@ -160,7 +160,7 @@ class UnetPlusPlus_with_ASPP_FPN(SegmentationModel):
             decoder_attention_type: Optional[str] = None,
             segmentation_channels: int = 32,
             in_channels: int = 3,
-            classes: int = 1,
+            classes: int = 2,
             activation: Optional[Union[str, callable]] = None,
             aux_params: Optional[dict] = None,
             atrous_rates: Tuple = (6, 12 ,18),
@@ -268,11 +268,14 @@ class LitModule(pl.LightningModule):
         # dice_soft = self.dice_soft(outputs, masks)
         # dice_th = self.dice_th(outputs, masks)
         dice_soft = Dice_soft_func(outputs, masks)
-        dice_th = Dice_threshold_func(outputs, masks)
+        dice_th, best_th = Dice_threshold_func(outputs, masks)
 
         self.log(f"{step}_loss", loss, sync_dist=True)
         self.log(f"{step}_dice_soft", dice_soft, sync_dist=True)
         self.log(f"{step}_dice_th", dice_th, sync_dist=True)
+
+        if step == "test":
+            self.log(f"{step}_best_th", best_th)
 
         return loss
 

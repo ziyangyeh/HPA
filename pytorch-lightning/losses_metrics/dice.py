@@ -70,4 +70,6 @@ def Dice_threshold_func(preds: torch.Tensor, target: torch.Tensor, ths=np.arange
         inter[i] += (p*targ).sum().item()
         union[i] += (p+targ).sum().item()
     dices = torch.where(union > 0.0, 2.0 * inter/union, torch.zeros_like(union))
-    return dices.max()
+    dices_max = dices.max()
+    best_th = torch.Tensor([0.05]) * dices.argmax() + torch.Tensor([0.1])
+    return dices_max, best_th

@@ -43,7 +43,7 @@ class LitDataModule(pl.LightningDataModule):
     ):
         super().__init__()
 
-        self.save_hyperparameters()
+        self.save_hyperparameters(ignore="data_frame")
 
         self.data_frame = data_frame
 
@@ -80,8 +80,8 @@ class LitDataModule(pl.LightningDataModule):
             self.val_dataset = self._dataset(val_df, transform=self.val_transform)
 
         if stage == "test" or stage is None:
-            pass
-            # self.test_dataset = self._dataset(self.test_df, transform=self.test_transform)
+            val_df = self.data_frame[self.data_frame.fold == self.hparams.val_fold].reset_index(drop=True)
+            self.test_dataset = self._dataset(val_df, transform=self.test_transform)
 
     def _dataset(self, df: pd.DataFrame, transform: Callable) -> Dataset:
         return HuBMAPDataset(dataframe=df, transform=transform)

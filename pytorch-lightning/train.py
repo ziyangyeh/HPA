@@ -95,6 +95,7 @@ CONFIG_YAML_PATH = CONFIG_DIR / "default.yaml"
 
 # %%
 import glob
+import cv2
 from utils import EasyConfig
 
 cfg = EasyConfig()
@@ -104,14 +105,22 @@ cfg_train = cfg.train
 cfg_data = cfg.data
 cfg_model = cfg.model
 
-file_list = np.unique([os.path.basename(i).split(".")[0] for i in glob.glob(str(CROPPED_DATA_DIR)+"/*/*")])
-kf = KFold(cfg_data.n_split, shuffle=True, random_state=cfg.seed)
-
 df = pd.DataFrame()
 df["image"] = glob.glob(str(CROPPED_DATA_DIR)+"/train/*")
 df["mask"] = glob.glob(str(CROPPED_DATA_DIR)+"/masks/*")
-for fold, (_, val_idx) in enumerate(kf.split(file_list)):
-        df.loc[val_idx, "fold"] = fold
+
+masks = []
+for i in range(len(df["mask"])):
+    mask = cv2.imread(df["mask"][i])
+    if mask.sum() == 0:
+        masks.append(0)
+    else:
+        masks.append(1)
+
+kf = StratifiedKFold(cfg_data.n_split, shuffle=True, random_state=cfg.seed)
+
+for fold, (_, val_idx) in enumerate(kf.split([os.path.basename(i).split(".")[0] for i in glob.glob(str(CROPPED_DATA_DIR)+"/masks/*")], masks)):
+    df.loc[val_idx, "fold"] = fold
 df.to_csv(os.path.join(str(CROPPED_DATA_DIR), "train.csv"), index=False)
 
 # %%
@@ -122,5 +131,3 @@ for fold in range(cfg_data.n_split):
     wandb.finish()
     del trainer
     gc.collect()
-
-

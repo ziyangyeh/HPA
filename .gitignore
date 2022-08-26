@@ -4,8 +4,10 @@ __pycache__/
 checkpoint
 train_masks
 wandb
+lightning_logs
 
 input
+working
 hubmap-organ-segmentation
 mmsegmentation256x256
 mmsegmentation512x512
